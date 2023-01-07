@@ -31,5 +31,5 @@ while True:
             print(i, line_str)
     page_refresh += 1
     print(page_refresh)
-    if page_refresh >= 1:
+    if page_refresh >= 10:
         break
