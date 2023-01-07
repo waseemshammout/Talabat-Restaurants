@@ -6,7 +6,7 @@ import pyodbc
 conn = pyodbc.connect('Driver={SQL Server};Server=DESKTOP-PDC6CGI\SQLEXPRESS;Database=testdb;Trusted_Connection=yes;')
 cursor = conn.cursor()
 
-cursor.execute('Select * from talabat_restaurants_urls where [done] is null')
+cursor.execute('Select * from talabat_restaurants_urls where id between 11647 and 11700')
 c = 0
 
 now = datetime.now()
@@ -30,58 +30,58 @@ for row in cursor.fetchall():
     html_element = soup.findAll('h1')
     text = 'h1'
     for i, line in enumerate(html_element):
-            intStart = str(line).find('mt-2">') + len('mt-2">')
+            intStart = str(line).find('data-test="brand-name">') + len('data-test="brand-name">')
             line_str = str(line)
             line_str = line_str[intStart:]
             intEnd = line_str.find('</')
             entry_name = line_str[:intEnd]
-            #print(entry_name)
+            print(entry_name)
 
     html_element = soup.findAll('p')
     text = 'cuisine-string white'
     for i, line in enumerate(html_element):
         if str(line).find(text) > 1:
-            intStart = str(line).find('white">') + len('white">')
+            intStart = str(line).find('"brand-cusine">') + len('"brand-cusine">')
             line_str = str(line)
             line_str = line_str[intStart:]
             intEnd = line_str.find('</p')
             category_name = line_str[:intEnd]
-            #print(category_name)
+            print(category_name)
 
-    html_element = soup.findAll('div')
-    text = '<div class="rating-number text-center mr-1">'
+    html_element = soup.findAll('p')
+    text = 'with a rating of'
     for i, line in enumerate(html_element):
         if str(line).find(text) > 1:
-            intStart = str(line).find('center mr-1">') + len('center mr-1">')
+            intStart = str(line).find('with a rating of ') + len('with a rating of ')
             line_str = str(line)
             line_str = line_str[intStart:]
-            intEnd = line_str.find('</div')
-            rating = float(line_str[:intEnd])
-            #print(rating)
+            intEnd = line_str.find('.</p>')
+            rating = line_str[:intEnd]
+            print(rating)
             break
 
     html_element = soup.findAll('div')
-    text = 'ratings-count ml-1'
+    text = '"brand-total-ratings">( '
     for i, line in enumerate(html_element):
         if str(line).find(text) > 1:
-            intStart = str(line).find('ml-1">( ') + len('ml-1">( ')
+            intStart = str(line).find('"brand-total-ratings">( ') + len('"brand-total-ratings">( ')
             line_str = str(line)
             line_str = line_str[intStart:]
             intEnd = line_str.find(' Ratings')
-            rated = int(line_str[:intEnd])
-            #print(rated)
+            rated = line_str[:intEnd]
+            print(rated)
             break
 
     html_element = soup.findAll('span')
-    text = 'f-500 ml-1'
+    text = '"brand-total-reviews">'
     for i, line in enumerate(html_element):
         if str(line).find(text) > 1:
-            intStart = str(line).find('ml-1">') + len('ml-1">')
+            intStart = str(line).find('"brand-total-reviews">') + len('"brand-total-reviews">')
             line_str = str(line)
             line_str = line_str[intStart:]
             intEnd = line_str.find(' Reviews')
-            reviewed = int(line_str[:intEnd])
-            #print(reviewed)
+            reviewed = line_str[:intEnd]
+            print(reviewed)
             break
 
     desc_msg = ''        
@@ -96,13 +96,13 @@ for row in cursor.fetchall():
             desc_msg = line_str[:intEnd]
             desc_msg = desc_msg.replace('<p>','')
             desc_msg = desc_msg.replace('</p>','')
-            #print(desc_msg)
+            print(desc_msg)
             break
     
     insert_command = "Insert Into talabat_restaurants (entry_name, category, rating, rated, reviewed, descriptive_message, link_id) values ("
     insert_command += "'" + entry_name.replace("'","") + "', '" + category_name.replace("'","") + "', " + str(rating) + ", " + str(rated) + ", " + str(reviewed) + ", '" + (desc_msg.replace("'",'')).replace('','') + "', " + str(row[0]) + ")"
     print(url)
-    # print(insert_command)
+    print(insert_command)
     cursor.execute(insert_command)
     conn.commit()
 
@@ -117,4 +117,4 @@ current_time = now.strftime("%H:%M:%S")
 
 print(current_time)
 
-x = input('press Enter to close this window')
+# x = input('press Enter to close this window')
