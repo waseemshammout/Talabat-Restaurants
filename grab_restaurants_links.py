@@ -18,19 +18,18 @@ while True:
     d = get(url, headers=hdr)
     soup = Soup(d.content, 'html.parser')
     html_element = soup.findAll('a')
-    text = '<div class="logo text-center'
+    text = 'data-test="vendor-a'
     for i, line in enumerate(html_element):
-        if str(line).find(text) > 1:
-            intStart = str(line).find('<a href="') + len('<a href="')
-            line_str = str(line)
-            line_str = line_str[intStart:]
-            intEnd = line_str.find('">')
-            target_text = line_str[:intEnd]
-            insert_cmd = "Insert Into talabat_restaurants_urls (url) values ('"  + target_text + "')"
+        if i > 14 and i < 45:
+            intStart = 30
+            line_str = str(line)[intStart:]
+            intEnd = line_str.find('"><div class="logo')
+            line_str = line_str[:intEnd]
+            insert_cmd = "Insert Into talabat_restaurants_urls (url) values ('"  + line_str + "')"
             cursor.execute(insert_cmd)
             conn.commit()
-            print(i, target_text)
+            print(i, line_str)
     page_refresh += 1
     print(page_refresh)
-    if page_refresh >= 5:
+    if page_refresh >= 1:
         break
