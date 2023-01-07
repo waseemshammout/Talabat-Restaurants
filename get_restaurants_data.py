@@ -6,7 +6,7 @@ import pyodbc
 conn = pyodbc.connect('Driver={SQL Server};Server=DESKTOP-PDC6CGI\SQLEXPRESS;Database=testdb;Trusted_Connection=yes;')
 cursor = conn.cursor()
 
-cursor.execute('Select * from talabat_restaurants_urls where id between 11647 and 11700')
+cursor.execute('Select * from talabat_restaurants_urls where [done] is null')
 c = 0
 
 now = datetime.now()
