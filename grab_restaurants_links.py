@@ -30,6 +30,6 @@ while True:
             conn.commit()
             print(i, line_str)
     page_refresh += 1
-    print(page_refresh)
-    if page_refresh >= 10:
+    print('Batch ' + str(page_refresh) + ' out of 20')
+    if page_refresh >= 20:
         break

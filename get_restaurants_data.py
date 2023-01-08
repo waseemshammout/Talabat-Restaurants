@@ -6,12 +6,13 @@ import pyodbc
 conn = pyodbc.connect('Driver={SQL Server};Server=DESKTOP-PDC6CGI\SQLEXPRESS;Database=testdb;Trusted_Connection=yes;')
 cursor = conn.cursor()
 
-cursor.execute('Select * from talabat_restaurants_urls where [done] is null')
+cursor.execute('Select * from talabat_restaurants_urls where id between 15401 and 15405')
 c = 0
 
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print(current_time)
+
 
 for row in cursor.fetchall():
     c += 1
@@ -35,7 +36,7 @@ for row in cursor.fetchall():
             line_str = line_str[intStart:]
             intEnd = line_str.find('</')
             entry_name = line_str[:intEnd]
-            print(entry_name)
+            #print(entry_name)
 
     html_element = soup.findAll('p')
     text = 'cuisine-string white'
@@ -46,18 +47,18 @@ for row in cursor.fetchall():
             line_str = line_str[intStart:]
             intEnd = line_str.find('</p')
             category_name = line_str[:intEnd]
-            print(category_name)
+            #print(category_name)
 
-    html_element = soup.findAll('p')
-    text = 'with a rating of'
+    html_element = soup.findAll('div')
     for i, line in enumerate(html_element):
-        if str(line).find(text) > 1:
-            intStart = str(line).find('with a rating of ') + len('with a rating of ')
+        if i == 35:
+            intStart = str(line).find('number">') + len('number">')
             line_str = str(line)
             line_str = line_str[intStart:]
-            intEnd = line_str.find('.</p>')
+            intEnd = line_str.find('</div>')
             rating = line_str[:intEnd]
-            print(rating)
+            if len(rating) == 0:
+                rating = 0
             break
 
     html_element = soup.findAll('div')
@@ -69,22 +70,24 @@ for row in cursor.fetchall():
             line_str = line_str[intStart:]
             intEnd = line_str.find(' Ratings')
             rated = line_str[:intEnd]
-            print(rated)
-            break
+            rated = line_str[:intEnd]
+        else:
+            rated = 0
+        break
 
     html_element = soup.findAll('span')
-    text = '"brand-total-reviews">'
+    text = 'brand-total-reviews">'
     for i, line in enumerate(html_element):
         if str(line).find(text) > 1:
-            intStart = str(line).find('"brand-total-reviews">') + len('"brand-total-reviews">')
+            intStart = str(line).find('reviews">') + len('reviews">')
             line_str = str(line)
             line_str = line_str[intStart:]
             intEnd = line_str.find(' Reviews')
             reviewed = line_str[:intEnd]
-            print(reviewed)
+            if len(reviewed) == 0:
+                reviewed = 0
             break
 
-    desc_msg = ''        
     html_element = soup.findAll('div')
     text = 'markdown-rich-text-block'
     for i, line in enumerate(html_element):
@@ -96,13 +99,15 @@ for row in cursor.fetchall():
             desc_msg = line_str[:intEnd]
             desc_msg = desc_msg.replace('<p>','')
             desc_msg = desc_msg.replace('</p>','')
-            print(desc_msg)
+            # print(desc_msg)
             break
-    
+
+    print(url)
+
     insert_command = "Insert Into talabat_restaurants (entry_name, category, rating, rated, reviewed, descriptive_message, link_id) values ("
     insert_command += "'" + entry_name.replace("'","") + "', '" + category_name.replace("'","") + "', " + str(rating) + ", " + str(rated) + ", " + str(reviewed) + ", '" + (desc_msg.replace("'",'')).replace('','') + "', " + str(row[0]) + ")"
-    print(url)
-    print(insert_command)
+    
+    # print(insert_command)
     cursor.execute(insert_command)
     conn.commit()
 
